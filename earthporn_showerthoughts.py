@@ -9,7 +9,7 @@ def fix_imgur(url):
     return url
 
 r = praw.Reddit("iforgot120's Earthporn Showerthoughts thing v1")
-getCount = 25
+getCount = 500
 
 while True:
     earthpornSub = r.get_subreddit('earthporn')
@@ -20,12 +20,17 @@ while True:
 
     earthpornList = [sub for sub in earthpornContent]
     showerthoughtList = [sub for sub in showerthoughtContent]
-
-    imgURL = fix_imgur(earthpornList[random.randint(0, getCount - 1)].url)
-    wittyText = showerthoughtList[random.randint(0, getCount - 1)].title  # They're typically supposed to be all in the title
     
-    #print(imgURL)
-    #print(wittyText)
+    length = len(earthpornList)
+    
+    if length > len(showerthoughtList):
+        length = len(showerthoughtList)
+
+    imgURL = fix_imgur(earthpornList[random.randint(0, length - 1)].url)
+    wittyText = showerthoughtList[random.randint(0, length - 1)].title  # They're typically supposed to be all in the title
+    
+    print(imgURL)
+    print(wittyText)
     
     with open('/home/kyle/python/reddit_crawler/template.html', 'r') as f: template = string.Template(f.read())
     with open('/home/kyle/python/reddit_crawler/display.html', 'w') as f: f.write(template.substitute(img=imgURL, text=wittyText))
