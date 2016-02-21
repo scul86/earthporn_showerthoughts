@@ -28,7 +28,6 @@ while True:
     print(wittyText)
     
     with open('/home/kyle/python/reddit_crawler/template.html', 'r') as f: template = string.Template(f.read())
-    print(template)
     with open('/home/kyle/python/reddit_crawler/display.html', 'w') as f: f.write(template.substitute(img=imgURL, text=wittyText))
 
-    time.sleep(10)
+    time.sleep(60)
