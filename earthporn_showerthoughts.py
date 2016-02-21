@@ -24,8 +24,8 @@ while True:
     imgURL = fix_imgur(earthpornList[random.randint(0, getCount - 1)].url)
     wittyText = showerthoughtList[random.randint(0, getCount - 1)].title  # They're typically supposed to be all in the title
     
-    print(imgURL)
-    print(wittyText)
+    #print(imgURL)
+    #print(wittyText)
     
     with open('/home/kyle/python/reddit_crawler/template.html', 'r') as f: template = string.Template(f.read())
     with open('/home/kyle/python/reddit_crawler/display.html', 'w') as f: f.write(template.substitute(img=imgURL, text=wittyText))
