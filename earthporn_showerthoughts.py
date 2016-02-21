@@ -15,8 +15,8 @@ while True:
     earthpornSub = r.get_subreddit('earthporn')
     showerthoughtSub = r.get_subreddit('showerthoughts')
 
-    earthpornContent = earthpornSub.get_top_from_week(limit = getCount)
-    showerthoughtContent = showerthoughtSub.get_top_from_week(limit = getCount)
+    earthpornContent = earthpornSub.get_top_from_month(limit = getCount)
+    showerthoughtContent = showerthoughtSub.get_top_from_month(limit = getCount)
 
     earthpornList = [sub for sub in earthpornContent]
     showerthoughtList = [sub for sub in showerthoughtContent]
