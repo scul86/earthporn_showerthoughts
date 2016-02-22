@@ -8,7 +8,6 @@ import os, praw, random, requests, time, string, re
 r = praw.Reddit("scul86's sfwPorn Showerthoughts thing v1.0")
 
 getCount = 1000
-
 screenWidth, screenHeight = [1920, 1080]
 
 def get_new_list():
