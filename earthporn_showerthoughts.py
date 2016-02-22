@@ -16,8 +16,8 @@ def fix_imgur(url):
         else: url = url[0:7]+'i.'+url[7:]+'.png'
     return url
 
-def checksize(url):
-    m = re.search('[0-9]+ *[xX] *[0-9]+', url)
+def checksize(title): # Any way to check size based on the actual image?
+    m = re.search('[0-9]+ *[xX] *[0-9]+', title)
     try:
         w, h = m.group().replace(' ', '').lower().split('x')
     except AttributeError:
