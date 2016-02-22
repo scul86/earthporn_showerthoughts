@@ -3,7 +3,7 @@
 
 import os, praw, random, requests, time, string, re
 
-r = praw.Reddit("iforgot120's Earthporn Showerthoughts thing v1")
+r = praw.Reddit("scul86's sfwPorn Showerthoughts thing v1.0")
 
 getCount = 1000
 
@@ -63,7 +63,10 @@ while True:
     
     #print(wittyText)
     
-    with open('/home/kyle/python/reddit_crawler/template.html', 'r') as f: template = string.Template(f.read())
-    with open('/home/kyle/python/reddit_crawler/display.html', 'w') as f: f.write(template.substitute(img=imgURL, text=wittyText))
+    with open('/home/kyle/python/reddit_crawler/template.html', 'r') as f: 
+        template = string.Template(f.read())
+
+    with open('/home/kyle/python/reddit_crawler/display.html', 'w') as f: 
+        f.write(template.substitute(img=imgURL, text=wittyText))
 
     time.sleep(60)
