@@ -3,7 +3,7 @@
 # Based on code by iforgot120 (https://www.reddit.com/user/iforgot120)
 # https://www.reddit.com/r/raspberry_pi/comments/46nb99/for_my_first_project_i_made_a_display_that_takes/d08em3p
 
-import os, praw, random, requests, time, string, re
+import os, praw, random, requests, time, string
 from PIL import Image
 from io import BytesIO
 
