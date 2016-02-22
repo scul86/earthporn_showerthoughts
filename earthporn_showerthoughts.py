@@ -19,14 +19,21 @@ def get_new_list():
     
     showerthoughtSub = r.get_subreddit('showerthoughts')
 
-    earthpornContent = earthpornSub.get_top_from_month(limit = getCount/5)
-    skypornContent = skypornSub.get_top_from_month(limit = getCount/5)
-    lakepornContent = lakepornSub.get_top_from_month(limit = getCount/5)
-    ruralpornContent = ruralpornSub.get_top_from_month(limit = getCount/5)
-    spacepornContent = spacepornSub.get_top_from_month(limit = getCount/5)
-    
-    showerthoughtContent = showerthoughtSub.get_top_from_month(limit = getCount)
-    
+    while True:
+        try:
+            earthpornContent = earthpornSub.get_top_from_month(limit = getCount/5)
+            skypornContent = skypornSub.get_top_from_month(limit = getCount/5)
+            lakepornContent = lakepornSub.get_top_from_month(limit = getCount/5)
+            ruralpornContent = ruralpornSub.get_top_from_month(limit = getCount/5)
+            spacepornContent = spacepornSub.get_top_from_month(limit = getCount/5)
+            
+            showerthoughtContent = showerthoughtSub.get_top_from_month(limit = getCount)
+            break
+
+        except TypeError as detail: 
+        # Had trouble with TypeError raised when connection is buffering too long
+            print("TypeError: " + detail)
+
     return [[sub for sub in skypornContent] + \
            [sub for sub in skypornContent] + \
            [sub for sub in lakepornContent] + \
@@ -63,6 +70,7 @@ while True: # Repeat forever
         sfwpornList, showerthoughtList = get_new_list()
         start_time = time.time()
         used = []
+        print("Refreshing the list of posts")
     
     length = len(sfwpornList)
     if length > len(showerthoughtList):
