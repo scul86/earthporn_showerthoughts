@@ -3,7 +3,9 @@
 # Based on code by iforgot120 (https://www.reddit.com/user/iforgot120)
 # https://www.reddit.com/r/raspberry_pi/comments/46nb99/for_my_first_project_i_made_a_display_that_takes/d08em3p
 
-import os, praw, random, requests, time, string, re
+import os, praw, random, requests, time, string
+from PIL import Image
+from io import BytesIO
 
 r = praw.Reddit("scul86's sfwPorn Showerthoughts thing v1.0")
 
@@ -11,34 +13,33 @@ getCount = 1000
 screenWidth, screenHeight = [1920, 1080]
 
 def get_new_list():
-    earthpornSub = r.get_subreddit('earthporn')
-    skypornSub = r.get_subreddit('skyporn')
-    lakepornSub = r.get_subreddit('lakePorn')
-    ruralpornSub = r.get_subreddit('ruralporn')
-    spacepornSub = r.get_subreddit('spaceporn')
+    earthSub = r.get_subreddit('earthporn')
+    skySub = r.get_subreddit('skyporn')
+    lakeSub = r.get_subreddit('lakePorn')
+    ruralSub = r.get_subreddit('ruralporn')
+    spaceSub = r.get_subreddit('spaceporn')
     
-    showerthoughtSub = r.get_subreddit('showerthoughts')
+    showerSub = r.get_subreddit('showerthoughts')
 
-    while True:
+    while True: # Repeat if we get an error
         try:
-            earthpornContent = earthpornSub.get_top_from_month(limit = getCount/5)
-            skypornContent = skypornSub.get_top_from_month(limit = getCount/5)
-            lakepornContent = lakepornSub.get_top_from_month(limit = getCount/5)
-            ruralpornContent = ruralpornSub.get_top_from_month(limit = getCount/5)
-            spacepornContent = spacepornSub.get_top_from_month(limit = getCount/5)
-            
-            showerthoughtContent = showerthoughtSub.get_top_from_month(limit = getCount)
+            earthContent = earthSub.get_top_from_month(limit = getCount/5)
+            skyContent = skySub.get_top_from_month(limit = getCount/5)
+            lakeContent = lakeSub.get_top_from_month(limit = getCount/5)
+            ruralContent = ruralSub.get_top_from_month(limit = getCount/5)
+            spaceContent = spaceSub.get_top_from_month(limit = getCount/5)
+            showerContent = showerSub.get_top_from_month(limit = getCount)
             break
 
-        except TypeError as detail: 
         # Had trouble with TypeError raised when connection is buffering too long
+        except TypeError as detail:
             print("TypeError: " + detail)
 
-    return [[sub for sub in skypornContent] + \
-           [sub for sub in skypornContent] + \
-           [sub for sub in lakepornContent] + \
-           [sub for sub in ruralpornContent], \
-           [sub for sub in showerthoughtContent]]
+    return [[sub for sub in earthContent] + \
+           [sub for sub in skyContent] + \
+           [sub for sub in lakeContent] + \
+           [sub for sub in ruralContent], \
+           [sub for sub in showerContent]]
 
 def fix_imgur(url):
     if "imgur" in url and not "i.i" in url:
@@ -47,19 +48,19 @@ def fix_imgur(url):
         else: url = url[0:7]+'i.'+url[7:]+'.png'
     return url
 
-def good_image(post):
-    imgURL = fix_imgur(post.url)
-    return (".jpg" in imgURL or ".png" in imgURL) and checksize(post.title)
+def good_image(imgURL):
+    return (".jpg" in imgURL or ".png" in imgURL) and checksize(imgURL)
 
-def checksize(title): 
-    # Any way to check size based on the actual image without downloading it?
-    m = re.search('[0-9]+ *[xX] *[0-9]+', title)
-    try:
-        w, h = m.group().replace(' ', '').lower().split('x')
-    except AttributeError:
-        print("Can't determine size")
-        return False
-    return (int(w) > 1920 and int(h) > 1080)
+def checksize(imgURL): 
+    # I had a sweet regex expression to get the image size from the post title
+    # Then I discovered Pillow/PIL
+    # '[0-9]+ *[xX×] *[0-9]+'
+    response = requests.get(imgURL)
+    img = Image.open(BytesIO(response.content))
+    w, h = img.size
+    print(img.size)
+
+    return (w > 1920 and h > 1080)
 
 used = []
 start_time = time.time()
@@ -80,7 +81,7 @@ while True: # Repeat forever
         i = random.randint(0, length - 1)
         imgURL = fix_imgur(sfwpornList[i].url)
         print('\n' + sfwpornList[i].title + '\n' + imgURL)
-        if good_image(sfwpornList[i]) and i not in used: 
+        if good_image(imgURL) and i not in used: 
             used.append(i)            
             break
         else: print("Selecting another")
