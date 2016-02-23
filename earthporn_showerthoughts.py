@@ -33,7 +33,7 @@ def get_new_list():
 
         # Had trouble with TypeError raised when connection is buffering too long
         except TypeError as detail:
-            print("TypeError: " + detail)
+            log_out('error', 'TypeError: ' + detail)
 
     return [[sub for sub in earthContent] + \
            [sub for sub in skyContent] + \
@@ -55,23 +55,36 @@ def checksize(imgURL):
     # I had a sweet regex expression to get the image size from the post title
     # Then I discovered Pillow/PIL
     # '[0-9]+ *[xX×] *[0-9]+'
-    response = requests.get(imgURL)
+    try: response = requests.get(imgURL)
+    except OSError as detail:
+        log_out('error', 'OSError: ' + details)
+        return False
     img = Image.open(BytesIO(response.content))
     w, h = img.size
-    print(img.size)
 
-    return (w > 1920 and h > 1080)
+    return (w >= screenWidth and h >= screenHeight)
+
+def log_out(type_out, text):
+    now = time.strftime('%d-%b-%Y: %H:%M:%S')
+    with open(type_out+'.log', 'a') as f:
+        f.write(now + ': ' + text +'\n')
+
+log_out('event', 'Script Start')
 
 used = []
 start_time = time.time()
+
+log_out('event', 'Getting initial list of posts')
 sfwpornList, showerthoughtList = get_new_list()
+log_out('event', 'Done')
 
 while True: # Repeat forever
     if time.time() - start_time > 60*60: # Refresh the lists every hour
+        log_out('event', 'Refreshing list of posts')
         sfwpornList, showerthoughtList = get_new_list()
         start_time = time.time()
         used = []
-        print("Refreshing the list of posts")
+        log_out('event', 'Done')
     
     length = len(sfwpornList)
     if length > len(showerthoughtList):
@@ -80,15 +93,22 @@ while True: # Repeat forever
     while True: # Repeat until we get a valid image in the proper size
         i = random.randint(0, length - 1)
         imgURL = fix_imgur(sfwpornList[i].url)
-        print('\n' + sfwpornList[i].title + '\n' + imgURL)
+        #print('\n' + sfwpornList[i].title + '\n' + imgURL)
         if good_image(imgURL) and i not in used: 
             used.append(i)            
             break
-        else: print("Selecting another")
+        else: pass
 
     wittyText = showerthoughtList[random.randint(0, length - 1)].title  # They're typically supposed to be all in the title
     
     #print(wittyText)
+
+    length = len(wittyText)
+
+    if length > 146:
+        middle = int(length/2)
+        split = wittyText[:middle].rfind(' ')
+        wittyText = wittyText[:split]+'<br>'+wittyText[split:]
     
     with open('/home/kyle/python/reddit_crawler/template.html', 'r') as f: 
         template = string.Template(f.read())
