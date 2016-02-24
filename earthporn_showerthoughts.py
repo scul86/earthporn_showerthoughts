@@ -32,8 +32,8 @@ def get_new_list():
             break
 
         # Had trouble with TypeError raised when connection is buffering too long
-        except TypeError as detail:
-            log_out('error', 'TypeError: ' + detail)
+        except TypeError as e:
+            log_out('error', type(e).__name__ + ': ' + str(e))
 
     return [[sub for sub in earthContent] + \
            [sub for sub in skyContent] + \
@@ -53,8 +53,8 @@ def good_image(imgURL):
 
 def checksize(imgURL):
     try: response = requests.get(imgURL)
-    except OSError as detail:
-        log_out('error', 'OSError: ' + details)
+    except (OSError, TypeError) as e:
+        log_out('error', type(e).__name__ + ': ' + str(e))
         return False
     img = Image.open(BytesIO(response.content))
     w, h = img.size
