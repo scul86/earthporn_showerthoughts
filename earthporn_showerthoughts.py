@@ -51,10 +51,7 @@ def fix_imgur(url):
 def good_image(imgURL):
     return (".jpg" in imgURL or ".png" in imgURL) and checksize(imgURL)
 
-def checksize(imgURL): 
-    # I had a sweet regex expression to get the image size from the post title
-    # Then I discovered Pillow/PIL
-    # '[0-9]+ *[xX×] *[0-9]+'
+def checksize(imgURL):
     try: response = requests.get(imgURL)
     except OSError as detail:
         log_out('error', 'OSError: ' + details)
