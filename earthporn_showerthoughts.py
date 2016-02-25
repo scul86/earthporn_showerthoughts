@@ -9,8 +9,15 @@ from io import BytesIO
 
 r = praw.Reddit("scul86's sfwPorn Showerthoughts thing v1.0")
 
+# Number of posts to get
 getCount = 1000
+
+# Minimum size of images
 screenWidth, screenHeight = [1920, 1080]
+
+# Paths to the files
+template_path = '/home/kyle/python/reddit_crawler/'
+display_path = '/home/kyle/python/reddit_crawler/'
 
 def get_new_list():
     earthSub = r.get_subreddit('earthporn')
@@ -113,10 +120,10 @@ while True: # Repeat forever
         split = wittyText[:middle].rfind(' ')
         wittyText = wittyText[:split]+'<br>'+wittyText[split:]
     
-    with open('/home/kyle/python/reddit_crawler/template.html', 'r') as f: 
+    with open(template_path + 'template.html', 'r') as f: 
         template = string.Template(f.read())
 
-    with open('/home/kyle/python/reddit_crawler/display.html', 'w') as f: 
+    with open(display_path + 'display.html', 'w') as f: 
         f.write(template.substitute(img=imgURL, text=wittyText))
 
     time.sleep(60)
