@@ -7,25 +7,31 @@
             background: url( $img ) no-repeat center fixed;
             background-size: cover;
         }
-        div {
-            position:absolute;  
-            width:90%;  
-            min-height:60px; 
-            text-align:center;
-            word-break:keep-all;
-            text-wrap:balance;
-            color:#FFF;   
-            bottom:5%;
-            left:5%;
-            background:rgba(0,0,0,0.6);
-            line-height:60px;
-            align:middle;
-            font-weight:bold;
-            font-size: 125%; 
+
+        #shadow {
+          position: absolute;
+          left: 5%; right: 5%;
+          background: rgba(0, 0, 0, 0.6);
+          bottom: 5%;
+        }
+
+        #text {
+          position: relative;
+        }
+
+        #text p {
+          text-align: center;
+          color: #FFF;
+          font-weight: bold;
+          font-size: 125%;
         }
     </style>
 </head>
 <body>
-    <div>$text</div>
+    <div id="shadow">
+        <div id="text">
+            <p>$text</p>
+        </div>
+    </div>
 </body>
 </html>

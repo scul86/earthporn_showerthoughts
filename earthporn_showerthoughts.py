@@ -38,7 +38,8 @@ def get_new_list():
     return [[sub for sub in earthContent] + \
            [sub for sub in skyContent] + \
            [sub for sub in lakeContent] + \
-           [sub for sub in ruralContent], \
+           [sub for sub in ruralContent] + \
+           [sub for sub in spaceContent], \
            [sub for sub in showerContent]]
 
 def fix_imgur(url):
@@ -55,8 +56,13 @@ def checksize(imgURL):
     try: response = requests.get(imgURL)
     except (OSError, TypeError) as e:
         log_out('error', type(e).__name__ + ': ' + str(e))
+        log_out('error', 'ImgURL = ' + imgURL)
         return False
-    img = Image.open(BytesIO(response.content))
+    try: img = Image.open(BytesIO(response.content))
+    except (OSError, IOError) as e:
+        log_out('error', type(e).__name__ + ': ' + str(e))
+        log_out('error', 'ImgURL = ' + imgURL)
+        return False
     w, h = img.size
 
     return (w >= screenWidth and h >= screenHeight)
