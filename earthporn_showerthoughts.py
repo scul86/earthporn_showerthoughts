@@ -17,7 +17,12 @@ minWidth, minHeight = [1920, 1080]
 
 # Paths to the files
 template_path = '/home/kyle/python/reddit_crawler/'
-display_path = '/home/kyle/python/reddit_crawler/'
+display_path = '/var/www/html/'
+log_path = '/home/kyle/.html_logs/'
+
+# Frequency to refresh lists of posts.
+hours = 4
+list_refresh_time = hours*60*60
 
 def get_new_list():
     earthSub = r.get_subreddit('earthporn')
@@ -36,10 +41,10 @@ def get_new_list():
             ruralContent = ruralSub.get_top_from_month(limit = getCount/5)
             spaceContent = spaceSub.get_top_from_month(limit = getCount/5)
             showerContent = showerSub.get_top_from_month(limit = getCount)
-            break
+            break # Exits the while loop once all content is retrieved
 
         # Had trouble with TypeError raised when connection is buffering too long
-        except TypeError as e:
+        except (TypeError, ReadTimeout) as e:
             log_out('error', type(e).__name__ + ': ' + str(e))
 
     return [[sub for sub in earthContent] + \
@@ -60,23 +65,21 @@ def good_image(imgURL):
     return (".jpg" in imgURL or ".png" in imgURL) and checksize(imgURL)
 
 def checksize(imgURL):
-    try: response = requests.get(imgURL)
-    except (OSError, TypeError) as e:
-        log_out('error', type(e).__name__ + ': ' + str(e))
-        log_out('error', 'ImgURL = ' + imgURL)
-        return False
-    try: img = Image.open(BytesIO(response.content))
+    try: 
+        response = requests.get(imgURL)
+        img = Image.open(BytesIO(response.content))
     except (OSError, IOError) as e:
         log_out('error', type(e).__name__ + ': ' + str(e))
         log_out('error', 'ImgURL = ' + imgURL)
         return False
+
     w, h = img.size
 
-    return (w >= screenWidth and h >= screenHeight)
+    return (w >= minWidth and h >= minHeight)
 
 def log_out(type_out, text):
     now = time.strftime('%d-%b-%Y: %H:%M:%S')
-    with open(type_out+'.log', 'a') as f:
+    with open(os.path.join(log_path, type_out + '.log'), 'a') as f:
         f.write(now + ': ' + text +'\n')
 
 log_out('event', 'Script Start')
@@ -89,7 +92,7 @@ sfwpornList, showerthoughtList = get_new_list()
 log_out('event', 'Done')
 
 while True: # Repeat forever
-    if time.time() - start_time > 60*60: # Refresh the lists every hour
+    if time.time() - start_time > list_refresh_time:
         log_out('event', 'Refreshing list of posts')
         sfwpornList, showerthoughtList = get_new_list()
         start_time = time.time()
@@ -103,15 +106,12 @@ while True: # Repeat forever
     while True: # Repeat until we get a valid image in the proper size
         i = random.randint(0, length - 1)
         imgURL = fix_imgur(sfwpornList[i].url)
-        #print('\n' + sfwpornList[i].title + '\n' + imgURL)
         if good_image(imgURL) and i not in used: 
             used.append(i)            
             break
         else: pass
 
-    wittyText = showerthoughtList[random.randint(0, length - 1)].title  # They're typically supposed to be all in the title
-    
-    #print(wittyText)
+    wittyText = showerthoughtList[random.randint(0, length - 1)].title  # They're supposed to all be in the title
 
     length = len(wittyText)
 
@@ -123,7 +123,7 @@ while True: # Repeat forever
     with open(os.path.join(template_path, 'template.html'), 'r') as f: 
         template = string.Template(f.read())
 
-    with open(os.path.join(display_path, 'display.html'), 'w') as f: 
+    with open(os.path.join(display_path, 'ep_st.html'), 'w') as f: 
         f.write(template.substitute(img=imgURL, text=wittyText))
 
     time.sleep(60)
