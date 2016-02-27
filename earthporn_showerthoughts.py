@@ -61,6 +61,8 @@ def get_new_list():
            [sub for sub in showerContent]]
 
 def fix_imgur(url):
+    # Some posts would lead to an imgur page link, rather than a direct link to the image
+    # This converts the page link to the direct link
     if "imgur" in url and not "i.i" in url:
         if "https" in url:
             url =  url[0:8]+'i.'+url[8:]+'.png'       
