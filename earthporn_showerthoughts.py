@@ -4,8 +4,8 @@
 # https://www.reddit.com/r/raspberry_pi/comments/46nb99/for_my_first_project_i_made_a_display_that_takes/d08em3p
 
 __author__    = '/u/scul86'
-__date__      = '26 February 2016'
-__version__   = 'v1.0'
+__date__      = '27 February 2016'
+__version__   = 'v1.01'
 __source__    = 'https://github.com/scul86/earthporn_showerthoughts'
 __copyright__ = 'GPLv3'
 
@@ -88,48 +88,52 @@ def log_out(type_out, text):
     with open(os.path.join(log_path, type_out + '.log'), 'a') as f:
         f.write(now + ': ' + text +'\n')
 
-log_out('event', 'Script Start')
+def main():
+    log_out('event', 'Script Start')
 
-used = []
-start_time = time.time()
-
-log_out('event', 'Getting initial list of posts')
-sfwpornList, showerthoughtList = get_new_list()
-log_out('event', 'Done')
-
-while True: # Repeat forever
-    if time.time() - start_time > list_refresh_time:
-        log_out('event', 'Refreshing list of posts')
-        sfwpornList, showerthoughtList = get_new_list()
-        start_time = time.time()
-        used = []
-        log_out('event', 'Done')
+    used = []
+    start_time = time.time()
     
-    length = len(sfwpornList)
-    if length > len(showerthoughtList):
-        length = len(showerthoughtList)
-    
-    while True: # Repeat until we get a valid image in the proper size
-        i = random.randint(0, length - 1)
-        imgURL = fix_imgur(sfwpornList[i].url)
-        if good_image(imgURL) and i not in used: 
-            used.append(i)            
-            break
-        else: pass
+    log_out('event', 'Getting initial list of posts')
+    sfwpornList, showerthoughtList = get_new_list()
+    log_out('event', 'Done')
 
-    wittyText = showerthoughtList[random.randint(0, length - 1)].title  # They're supposed to all be in the title
+    while True: # Repeat forever
+        if time.time() - start_time > list_refresh_time:
+            log_out('event', 'Refreshing list of posts')
+            sfwpornList, showerthoughtList = get_new_list()
+            start_time = time.time()
+            used = []
+            log_out('event', 'Done')
+        
+        length = len(sfwpornList)
+        if length > len(showerthoughtList):
+            length = len(showerthoughtList)
+        
+        while True: # Repeat until we get a valid image in the proper size
+            i = random.randint(0, length - 1)
+            imgURL = fix_imgur(sfwpornList[i].url)
+            if good_image(imgURL) and i not in used: 
+                used.append(i)            
+                break
+            else: pass
 
-    length = len(wittyText)
+        wittyText = showerthoughtList[random.randint(0, length - 1)].title  # They're supposed to all be in the title
 
-    if length > 146:
-        middle = int(length/2)
-        split = wittyText[:middle].rfind(' ')
-        wittyText = wittyText[:split]+'<br>'+wittyText[split:]
+        length = len(wittyText)
 
-    with open(os.path.join(template_path, 'template.html'), 'r') as f: 
-        template = string.Template(f.read())
+        if length > 146:
+            middle = int(length/2)
+            split = wittyText[:middle].rfind(' ')
+            wittyText = wittyText[:split]+'<br>'+wittyText[split:]
 
-    with open(os.path.join(display_path, 'ep_st.html'), 'w') as f: 
-        f.write(template.substitute(img=imgURL, text=wittyText))
+        with open(os.path.join(template_path, 'template.html'), 'r') as f: 
+            template = string.Template(f.read())
 
-    time.sleep(60)
+        with open(os.path.join(display_path, 'ep_st.html'), 'w') as f: 
+            f.write(template.substitute(img=imgURL, text=wittyText))
+
+        time.sleep(60)
+
+if __name__ == '__main__':
+	main()
