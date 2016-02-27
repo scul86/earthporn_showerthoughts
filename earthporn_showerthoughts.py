@@ -70,7 +70,7 @@ def fix_imgur(url):
     return url
 
 def good_image(imgURL):
-    return (".jpg" in imgURL[-5:] or ".png" in imgURL[-5:]) and \
+    return ('.jpg' in imgURL[-5:] or '.png' in imgURL[-5:]) and \
             checksize(imgURL) and not 'gallery' in imgURL
 
 def checksize(imgURL):
