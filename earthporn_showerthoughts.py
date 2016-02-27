@@ -22,9 +22,9 @@ getCount = 1000
 minWidth, minHeight = [1920, 1080]
 
 # Paths to the files
-template_path = '/home/kyle/python/reddit_crawler/'
+template_path = '/home/[USER]/python/reddit_crawler/'
 display_path = '/var/www/html/'
-log_path = '/home/kyle/.html_logs/'
+log_path = '/home/[USER]/.html_logs/'
 
 # Frequency to refresh lists of posts.
 hours = 4
