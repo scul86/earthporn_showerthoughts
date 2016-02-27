@@ -5,7 +5,7 @@
 
 __author__    = '/u/scul86'
 __date__      = '27 February 2016'
-__version__   = 'v1.01'
+__version__   = 'v1.02'
 __source__    = 'https://github.com/scul86/earthporn_showerthoughts'
 __copyright__ = 'GPLv3'
 
@@ -63,14 +63,15 @@ def get_new_list():
 def fix_imgur(url):
     # Some posts would lead to an imgur page link, rather than a direct link to the image
     # This converts the page link to the direct link
-    if "imgur" in url and not "i.i" in url:
-        if "https" in url:
+    if 'imgur' in url and not 'i.i' in url:
+        if 'https' in url:
             url =  url[0:8]+'i.'+url[8:]+'.png'       
         else: url = url[0:7]+'i.'+url[7:]+'.png'
     return url
 
 def good_image(imgURL):
-    return (".jpg" in imgURL or ".png" in imgURL) and checksize(imgURL)
+    return ('.jpg' in imgURL[-5:] or '.png' in imgURL[-5:]) and \
+            checksize(imgURL) and not 'gallery' in imgURL
 
 def checksize(imgURL):
     try: 
