@@ -1,7 +1,13 @@
 #!/usr/bin/python3
 #
-# Based on code by iforgot120 (https://www.reddit.com/user/iforgot120)
+# Inspired by code from iforgot120 (https://www.reddit.com/user/iforgot120)
 # https://www.reddit.com/r/raspberry_pi/comments/46nb99/for_my_first_project_i_made_a_display_that_takes/d08em3p
+
+__author__    = '/u/scul86'
+__date__      = '26 February 2016'
+__version__   = 'v1.0'
+__source__    = 'https://github.com/scul86/earthporn_showerthoughts'
+__copyright__ = 'GPLv3'
 
 import os, praw, random, requests, time, string
 from PIL import Image
