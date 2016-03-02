@@ -1,7 +1,12 @@
 #!/usr/bin/python3
 #
-# Inspired by code from iforgot120 (https://www.reddit.com/user/iforgot120)
+# Inspired by code from /u/iforgot120 
+#           https://www.reddit.com/user/iforgot120)
 # https://www.reddit.com/r/raspberry_pi/comments/46nb99/for_my_first_project_i_made_a_display_that_takes/d08em3p
+#
+# Thanks to /u/rhgrant10 for lots of help as well
+#           https://www.reddit.com/user/rhgrant10
+# https://www.reddit.com/r/learnpython/comments/47twoy/critique_my_code_please/d0fsxh4
 
 __author__    = '/u/scul86'
 __date__      = '1 Mar 2016'
@@ -123,6 +128,7 @@ def create_check_size(min_width, min_height, logic='and'):
              not meet requirements.
     :rtype: function
     """
+        
     # Get the right logic function. We'll use it later.
     op = operator.__and__
     if logic == 'or':
