@@ -10,7 +10,7 @@
 
 __author__    = '/u/scul86'
 __date__      = '1 Mar 2016'
-__version__   = 'v1.04'
+__version__   = 'v1.05'
 __source__    = 'https://github.com/scul86/earthporn_showerthoughts'
 __copyright__ = 'GPLv3'
 
@@ -70,7 +70,7 @@ def get_posts(subs):
     div = len(subs)
     for sub in subs:
         s = r.get_subreddit(sub)
-        p = ''
+        p = []
         while True: # Repeat until we don't get an error
             try:
                 p = s.get_top_from_month(limit = num_posts/div)
@@ -81,6 +81,7 @@ def get_posts(subs):
             except (TypeError, ReadTimeout) as e:
                 log_out('error', '{}: {}'.format(type(e).__name__, str(e)))
                 
+        # Execute this step only once, after content is retrieved       
         for post in p:
             posts.append(post)
                 
@@ -152,7 +153,7 @@ def create_check_size(min_width, min_height, logic='and'):
 
         # Here's where we use the right logic.
         w, h = img.size
-        return op(w >= min_width, h <= min_height)
+        return op(w >= min_width, h >= min_height)
 
     # Return the custom function to the caller.
     return check_size
@@ -191,10 +192,11 @@ def main():
     sfw_porn_list, shower_thought_list = get_new_list([image_subs, text_subs])
     log_out('event', 'Done')
 
-    while True: # Repeat forever
+    while True: # Repeat forever.  Break with CTRL-C (on most systems)
         if time.time() - start_time > list_refresh_rate:
             log_out('event', 'Refreshing list of posts')
             sfw_porn_list, shower_thought_list = get_new_list([image_subs, text_subs])
+            #                       Darn, line longer than it should be :(   80^
             start_time = time.time()
             used = []
             log_out('event', 'Done')
