@@ -158,8 +158,6 @@ def create_check_size(min_width, min_height, logic='and'):
     # Return the custom function to the caller.
     return check_size
 
-check_size = create_check_size(min_height, min_width, logic)
-
 def is_good_image(img_url):
     """Given an URL, determine if the url points to a file of type jpg or png,
     is greater than a desired size, and does not point to a gallery
@@ -182,9 +180,11 @@ def log_out(type_out, text):
     with open(os.path.join(log_path, type_out + '.log'), 'a') as f:
         f.write('{:%d-%b-%Y: %H:%M:%S}: {}\n'.format(datetime.now(), text))
 
+check_size = create_check_size(min_height, min_width, logic)
+
 def main():
     log_out('event', 'Script Start')
-
+    
     used = []
     start_time = time.time()
     
