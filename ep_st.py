@@ -39,7 +39,7 @@ r = praw.Reddit(config['DEFAULT']['appname'])
 imgur_id = config['IMGUR'].get('imgur_id')
 imgur_secret = config['IMGUR'].get('imgur_secret')
 
-print('ID: {}\nsecret: {}'.format(imgur_id, imgur_secret))
+# print('ID: {}\nsecret: {}'.format(imgur_id, imgur_secret))
 
 # Number of posts to get
 num_posts = config['SUBREDDITS'].getint('numberposts', fallback=1000)
