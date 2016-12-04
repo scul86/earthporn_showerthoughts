@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!venv/bin/python3
 #
 # Inspired by code from /u/iforgot120 
 #           https://www.reddit.com/user/iforgot120)
@@ -9,8 +9,8 @@
 # https://www.reddit.com/r/learnpython/comments/47twoy/critique_my_code_please/d0fsxh4
 
 __author__    = '/u/scul86'
-__date__      = '1 Mar 2016'
-__version__   = 'v1.05'
+__date__      = '3 Dec 2016'
+__version__   = 'v1.06'
 __source__    = 'https://github.com/scul86/earthporn_showerthoughts'
 __copyright__ = 'GPLv3'
 
@@ -34,6 +34,12 @@ config.read('ep_st.config')
 
 # Open Reddit API
 r = praw.Reddit(config['DEFAULT']['appname'])
+
+# imgur API
+imgur_id = config['IMGUR'].get('imgur_id')
+imgur_secret = config['IMGUR'].get('imgur_secret')
+
+print('ID: {}\nsecret: {}'.format(imgur_id, imgur_secret))
 
 # Number of posts to get
 num_posts = config['SUBREDDITS'].getint('numberposts', fallback=1000)
@@ -242,3 +248,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    #pass
