@@ -64,7 +64,11 @@ image_subs = config['SUBREDDITS']['imagesubs'].split(', ')
 text_subs = config['SUBREDDITS']['textsubs'].split(', ')
 
 # logging config
+logging.basicConfig(filename='ep_st.log', format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
+logger.info("Logging Config done")
 
 ################################################################################
 
@@ -90,7 +94,7 @@ def get_posts(subs):
             # Had trouble with TypeError raised when connection is buffering too long
             # Which one would think is the same as ReadTimeout :/
             except (TypeError, ReadTimeout) as e:
-                log_out('error', '{}: {}'.format(type(e).__name__, str(e)))
+                logger.error('{}: {}'.format(type(e).__name__, str(e)))
 
         # Execute this step only once, after content is retrieved       
         for post in p:
@@ -122,7 +126,7 @@ def get_album_image(url):
         :return: url direct to the image
         :rtype: str
         """
-    log_out('event', 'expanding imgur album.  URL: {}'.format(url))
+    logger.info('Expanding imgur album.  URL: {}'.format(url))
     album_id = url.split('/')[-1]
     images = imgur_client.get_album_images(album_id=album_id)
     return random.choice(images).link
@@ -142,7 +146,7 @@ def get_album_image(url):
     return random.choice(images).link'''
 
 
-def fix_imgur(url):
+def fix_imgur(img_url):
     """Given an URL, checks if it is an Imgur URL, and returns a valid
         direct Imgur URL
     
@@ -151,19 +155,20 @@ def fix_imgur(url):
     :rtype: str
     """
 
-    if '?' in url and 'imgur' in url:
-        url = url.split('?')[0]
+    logger.debug('URL is: {}'.format(img_url))
+    if '?' in img_url and 'imgur' in img_url:
+        img_url = img_url.split('?')[0]
 
-    if 'imgur.com/a/' in url:
-        return get_album_image(url)
+    if 'imgur.com/a/' in img_url:
+        return get_album_image(img_url)
     # elif 'imgur.com/gallery/' in url:
     #    return get_gallery_image(url)'''
-    elif 'imgur' in url and not 'i.i' in url and not 'iob.i' in url:
-        if 'https' in url:
-            url = url[0:8] + 'i.' + url[8:] + '.png'
+    elif 'imgur' in img_url and not 'i.i' in img_url and not 'iob.i' in img_url:
+        if 'https' in img_url:
+            img_url = img_url[0:8] + 'i.' + img_url[8:] + '.png'
         else:
-            url = url[0:7] + 'i.' + url[7:] + '.png'
-    return url
+            img_url = img_url[0:7] + 'i.' + img_url[7:] + '.png'
+    return img_url
 
 
 def create_check_size(min_width, min_height, logic='and'):
@@ -197,8 +202,8 @@ def create_check_size(min_width, min_height, logic='and'):
             response = requests.get(url)
             img = Image.open(BytesIO(response.content))
         except (OSError, IOError) as e:
-            log_out('error', '{}: {}'.format(type(e).__name__, e))
-            log_out('error', 'Image URL = {}'.format(url))
+            logger.error('{}: {}'.format(type(e).__name__, e))
+            logger.error('Image URL = {}'.format(url))
             return False
 
         # Here's where we use the right logic.
@@ -218,6 +223,7 @@ def is_good_image(img_url):
     :rtype: bool
     """
 
+    logger.debug('URL is: {}'.format(img_url))
     return 'gallery' not in img_url and \
            ('.jpg' in img_url[-5:] or '.png' in img_url[-5:]) and \
            check_size(img_url)
@@ -238,23 +244,23 @@ check_size = create_check_size(min_height, min_width, logic)
 
 
 def main():
-    log_out('event', 'Script Start')
+    logger.info('Script Start')
 
     used = []
     start_time = time.time()
 
-    log_out('event', 'Getting initial list of posts')
+    logger.info('Getting initial list of posts')
     sfw_porn_list, shower_thought_list = get_new_list([image_subs, text_subs])
-    log_out('event', 'Done')
+    logger.info('Done')
 
     while True:  # Repeat forever.  Break with CTRL-C (on most systems)
         if time.time() - start_time > list_refresh_rate:
-            log_out('event', 'Refreshing list of posts')
+            logger.info('Refreshing list of posts')
             sfw_porn_list, shower_thought_list = get_new_list([image_subs, text_subs])
             #                       Darn, line longer than it should be :(   80^
             start_time = time.time()
             used = []
-            log_out('event', 'Done')
+            logger.info('Done')
 
         length = min(len(sfw_porn_list), len(shower_thought_list))
 
@@ -287,4 +293,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # pass
