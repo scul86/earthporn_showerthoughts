@@ -22,6 +22,7 @@ import time
 import string
 import configparser
 import operator
+import logging
 
 from PIL import Image
 from io import BytesIO
@@ -61,6 +62,8 @@ list_refresh_rate = config['REFRESH'].getint('refreshrate', fallback=4) * 60 * 6
 
 image_subs = config['SUBREDDITS']['imagesubs'].split(', ')
 text_subs = config['SUBREDDITS']['textsubs'].split(', ')
+
+# logging config
 
 
 ################################################################################
