@@ -32,7 +32,7 @@ from imgurpython import ImgurClient
 ################################################################################
 # Config file stuff
 config = configparser.ConfigParser()
-config.read('ep_st.config')
+config.read('ep_st.conf')
 
 # Open Reddit API
 r = praw.Reddit(config['DEFAULT']['appname'])
