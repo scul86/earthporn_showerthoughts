@@ -68,7 +68,7 @@ logging.basicConfig(filename='ep_st.log', format='%(asctime)s - %(levelname)s - 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-logger.info("Logging Config done")
+logger.debug("Logging Config done")
 
 ################################################################################
 
