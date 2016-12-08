@@ -8,10 +8,10 @@
 #           https://www.reddit.com/user/rhgrant10
 # https://www.reddit.com/r/learnpython/comments/47twoy/critique_my_code_please/d0fsxh4
 
-__author__    = '/u/scul86'
-__date__      = '3 Dec 2016'
-__version__   = 'v1.06'
-__source__    = 'https://github.com/scul86/earthporn_showerthoughts'
+__author__ = '/u/scul86'
+__date__ = '3 Dec 2016'
+__version__ = 'v1.06'
+__source__ = 'https://github.com/scul86/earthporn_showerthoughts'
 __copyright__ = 'GPLv3'
 
 import os
@@ -26,6 +26,7 @@ import operator
 from PIL import Image
 from io import BytesIO
 from datetime import datetime
+from imgurpython import ImgurClient
 
 ################################################################################
 # Config file stuff
@@ -36,10 +37,9 @@ config.read('ep_st.config')
 r = praw.Reddit(config['DEFAULT']['appname'])
 
 # imgur API
-imgur_id = config['IMGUR'].get('imgur_id')
-imgur_secret = config['IMGUR'].get('imgur_secret')
-
-# print('ID: {}\nsecret: {}'.format(imgur_id, imgur_secret))
+imgur_id = config['IMGUR'].get('id')
+imgur_secret = config['IMGUR'].get('secret')
+imgur_client = ImgurClient(imgur_id, imgur_secret)
 
 # Number of posts to get
 num_posts = config['SUBREDDITS'].getint('numberposts', fallback=1000)
@@ -111,6 +111,34 @@ def get_new_list(l):
     return ret
 
 
+def get_album_image(url):
+    """Given an imgur album URL, returns a valid direct
+            Imgur URL to a random image in the album
+
+        :param str url: the url of the album
+        :return: url direct to the image
+        :rtype: str
+        """
+    log_out('event', 'expanding imgur album.  URL: {}'.format(url))
+    album_id = url.split('/')[-1]
+    images = imgur_client.get_album_images(album_id=album_id)
+    return random.choice(images).link
+
+
+'''def get_gallery_image(url):
+    """Given an imgur gallery URL, returns a valid direct
+            Imgur URL to a random image in the gallery
+
+        :param str url: the url of the gallery
+        :return: url direct to the image
+        :rtype: str
+        """
+
+    gallery_id = url.split('/')[-1]
+    images = imgur_client.get_custom_gallery(gallery_id=gallery_id)
+    return random.choice(images).link'''
+
+
 def fix_imgur(url):
     """Given an URL, checks if it is an Imgur URL, and returns a valid
         direct Imgur URL
@@ -120,7 +148,14 @@ def fix_imgur(url):
     :rtype: str
     """
 
-    if 'imgur' in url and not 'i.i' in url:
+    if '?' in url and 'imgur' in url:
+        url = url.split('?')[0]
+
+    if 'imgur.com/a/' in url:
+        return get_album_image(url)
+    # elif 'imgur.com/gallery/' in url:
+    #    return get_gallery_image(url)'''
+    elif 'imgur' in url and not 'i.i' in url and not 'iob.i' in url:
         if 'https' in url:
             url = url[0:8] + 'i.' + url[8:] + '.png'
         else:
@@ -175,13 +210,14 @@ def is_good_image(img_url):
     """Given an URL, determine if the url points to a file of type jpg or png,
     is greater than a desired size, and does not point to a gallery
     
-    :param str url: url to determine if points to valid image
+    :param str img_url: url to determine if points to valid image
     :return: True if valid image, False otherwise
     :rtype: bool
     """
 
-    return ('.jpg' in img_url[-5:] or '.png' in img_url[-5:]) and \
-           check_size(img_url) and not 'gallery' in img_url
+    return 'gallery' not in img_url and \
+           ('.jpg' in img_url[-5:] or '.png' in img_url[-5:]) and \
+           check_size(img_url)
 
 
 def log_out(type_out, text):
@@ -221,12 +257,12 @@ def main():
 
         while True:  # Repeat until we get a valid image in the proper size
             i = random.randint(0, length - 1)
+            # TODO: random.choice()
+            # TODO: fix_url() rather than just imgur
             img_url = fix_imgur(sfw_porn_list[i].url)
             if is_good_image(img_url) and i not in used:
                 used.append(i)
                 break
-            else:
-                pass
 
         witty_text = shower_thought_list[random.randint(0, length - 1)].title  # They're supposed to all be in the title
 
@@ -248,4 +284,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-    #pass
+    # pass
