@@ -26,7 +26,7 @@ import logging
 
 from PIL import Image
 from io import BytesIO
-from datetime import datetime
+# from datetime import datetime
 from imgurpython import ImgurClient
 
 ################################################################################
@@ -69,7 +69,7 @@ logging.basicConfig(filename='ep_st.log',
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-logger.debug("Logging Config done")
+logger.debug("Logging configuration complete")
 
 ################################################################################
 
@@ -109,13 +109,19 @@ def get_new_list(l):
     based on input list of subs on n length
     
     :param list l: list of subs to get content from
-    :return: n-dimensional list of reddit posts
+    :return: n-dimensional list of Reddit posts
     :rtype: list
     """
+
+    logger.info('Getting new lists of posts')
+    t1 = time.time()
 
     ret = []
     for i in range(0, len(l)):
         ret.append(get_posts(l[i]))
+
+    t2 = time.time()
+    logger.info('Done in {0:.2f} seconds'.format(t2 - t1))
     return ret
 
 
@@ -151,7 +157,7 @@ def fix_imgur(img_url):
     """Given an URL, checks if it is an Imgur URL, and returns a valid
         direct Imgur URL
     
-    :param str url: the url of the image to check
+    :param str img_url: the url of the image to check
     :return: corrected url direct to the image
     :rtype: str
     """
@@ -239,18 +245,16 @@ def main():
     used = []
     start_time = time.time()
 
-    logger.info('Getting initial list of posts')
+    # logger.info('Getting initial list of posts')
     sfw_porn_list, shower_thought_list = get_new_list([image_subs, text_subs])
-    logger.info('Done')
+    # logger.info('Done')
 
     while True:  # Repeat forever.  Break with CTRL-C (on most systems)
         if time.time() - start_time > list_refresh_rate:
-            logger.info('Refreshing list of posts')
             sfw_porn_list, shower_thought_list = get_new_list([image_subs, text_subs])
             #                       Darn, line longer than it should be :(   80^
             start_time = time.time()
             used = []
-            logger.info('Done')
 
         length = min(len(sfw_porn_list), len(shower_thought_list))
 
@@ -262,7 +266,8 @@ def main():
                 used.append(i)
                 break
 
-        witty_text = shower_thought_list[random.randint(0, length - 1)].title  # They're supposed to all be in the title
+        witty_text = shower_thought_list[random.randint(0, length - 1)].title
+        # They're supposed to all be in the title
 
         length = len(witty_text)
 
