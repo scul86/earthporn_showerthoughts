@@ -55,7 +55,6 @@ template_path = os.path.expanduser(config['FILEPATHS']['template'])
 
 # Temporary display file path while updating and testing
 display_path = os.path.expanduser(config['FILEPATHS']['display'])
-log_path = os.path.expanduser(config['FILEPATHS']['log'])
 
 # Frequency to refresh lists of posts.
 list_refresh_rate = config['REFRESH'].getint('refreshrate', fallback=4) * 60 * 60
@@ -64,7 +63,9 @@ image_subs = config['SUBREDDITS']['imagesubs'].split(', ')
 text_subs = config['SUBREDDITS']['textsubs'].split(', ')
 
 # logging config
-logging.basicConfig(filename='ep_st.log', format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+logging.basicConfig(filename='ep_st.log',
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -229,17 +230,6 @@ def is_good_image(img_url):
            check_size(img_url)
 
 
-def log_out(type_out, text):
-    """Writes given text to a log file
-    
-    :param str type_out: type of log file to write (ex: error, event, etc...)
-    :param str text: text to write out to the given file
-    """
-
-    with open(os.path.join(log_path, type_out + '.log'), 'a') as f:
-        f.write('{:%d-%b-%Y: %H:%M:%S}: {}\n'.format(datetime.now(), text))
-
-
 check_size = create_check_size(min_height, min_width, logic)
 
 
@@ -266,7 +256,6 @@ def main():
 
         while True:  # Repeat until we get a valid image in the proper size
             i = random.randint(0, length - 1)
-            # TODO: random.choice()
             # TODO: fix_url() rather than just imgur
             img_url = fix_imgur(sfw_porn_list[i].url)
             if is_good_image(img_url) and i not in used:
