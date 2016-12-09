@@ -7,3 +7,5 @@ venv
 
 ep_st.conf
 ep_st.log
+test_imgur.py
+ep_st.html
