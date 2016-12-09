@@ -6,3 +6,4 @@ __pycache__
 venv
 
 ep_st.conf
+ep_st.log
