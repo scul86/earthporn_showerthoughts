@@ -26,7 +26,6 @@ import logging
 
 from PIL import Image
 from io import BytesIO
-# from datetime import datetime
 from imgurpython import ImgurClient
 
 ################################################################################
@@ -198,7 +197,7 @@ def create_check_size(min_width, min_height, logic='and'):
         op = operator.__or__
 
     # Define our custom checksize function.
-    def check_size(url):
+    def check_size_inner(url):
         """Given a url, return True if the image meets size requirements.
 
         :param str url: the url of the image to check
@@ -211,6 +210,7 @@ def create_check_size(min_width, min_height, logic='and'):
         except (OSError, IOError) as e:
             logger.error('{}: {}'.format(type(e).__name__, e))
             logger.error('Image URL = {}'.format(url))
+            logger.debug('In check_size')
             return False
 
         # Here's where we use the right logic.
@@ -218,7 +218,7 @@ def create_check_size(min_width, min_height, logic='and'):
         return op(w >= min_width, h >= min_height)
 
     # Return the custom function to the caller.
-    return check_size
+    return check_size_inner
 
 
 def is_good_image(img_url):
@@ -245,9 +245,7 @@ def main():
     used = []
     start_time = time.time()
 
-    # logger.info('Getting initial list of posts')
     sfw_porn_list, shower_thought_list = get_new_list([image_subs, text_subs])
-    # logger.info('Done')
 
     while True:  # Repeat forever.  Break with CTRL-C (on most systems)
         if time.time() - start_time > list_refresh_rate:
@@ -257,6 +255,7 @@ def main():
             used = []
 
         length = min(len(sfw_porn_list), len(shower_thought_list))
+        img_url = ''
 
         while True:  # Repeat until we get a valid image in the proper size
             i = random.randint(0, length - 1)
