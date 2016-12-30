@@ -1,6 +1,8 @@
+configparser==3.5.0
 decorator==4.0.10
 imgurpython==1.1.7
 Pillow==3.4.2
+pkg-resources==0.0.0
 praw==3.5.0
 prawcore==0.3.0
 requests==2.12.3
