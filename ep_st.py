@@ -21,6 +21,7 @@ import requests
 import time
 import string
 import configparser
+import argparse
 import operator
 import logging
 
@@ -30,6 +31,11 @@ from imgurpython import ImgurClient
 from multiprocessing import Pool
 
 ################################################################################
+parser = argparse.ArgumentParser()
+parser.add_argument('-l', '--level')
+args = parser.parse_args()
+level = args.level
+
 # Config file stuff
 config = configparser.ConfigParser()
 config.read('ep_st.config')
@@ -55,6 +61,9 @@ template_path = os.path.expanduser(config['FILEPATHS']['template'])
 
 # Temporary display file path while updating and testing
 display_path = os.path.expanduser(config['FILEPATHS']['display'])
+log_path = os.path.expanduser(config['FILEPATHS']['log'])
+
+# print(log_path)
 
 # Frequency to refresh lists of posts.
 list_refresh_rate = config['REFRESH'].getint('refreshrate', fallback=4) * 60 * 60
@@ -63,16 +72,19 @@ image_subs = config['SUBREDDITS']['imagesubs'].split(', ')
 text_subs = config['SUBREDDITS']['textsubs'].split(', ')
 
 # logging config
-logging.basicConfig(filename='ep_st.log',
+logging.basicConfig(filename=os.path.join(log_path,'ep_st.log'),
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
 log_levels = {'debug': logging.DEBUG,
-              'info':logging.INFO,
-              'warn':logging.WARNING,
-              'error':logging.ERROR,
-              'critical':logging.CRITICAL}
-level = config['LOGGING']['level'].lower()
+              'info': logging.INFO,
+              'warn': logging.WARNING,
+              'error': logging.ERROR,
+              'critical': logging.CRITICAL}
+
+if not level:  # if logging level was not set with an argument
+    level = config['LOGGING']['level'].lower()
+
 try:
     logger.setLevel(log_levels[level])
 except KeyError:
@@ -81,8 +93,6 @@ except KeyError:
     logger.info("Valid values are 'debug', 'info', 'warn', 'error', or 'critical'")
 
 logger.debug("Logging configuration complete")
-
-
 ################################################################################
 
 
@@ -130,7 +140,7 @@ def get_new_list(l):
     ret = [item for sublist in data for item in sublist]
 
     end_time = time.time()
-    logger.info('Done in {0:.2f} seconds'.format(end_time - start_time))
+    logger.info('Finished in {0:.2f} seconds'.format(end_time - start_time))
     return ret
 
 
@@ -171,7 +181,7 @@ def fix_imgur(img_url):
     :rtype: str
     """
 
-    logger.debug('URL is: {}'.format(img_url))
+    # logger.debug('URL is: {}'.format(img_url))
     if '?' in img_url and 'imgur' in img_url:
         img_url = img_url.split('?')[0]
 
@@ -225,6 +235,7 @@ def create_check_size(min_width, min_height, logic='and'):
 
         # Here's where we use the right logic.
         w, h = img.size
+        logger.debug('Image size is {}x{}'.format(w, h))
         return op(w >= min_width, h >= min_height)
 
     # Return the custom function to the caller.
@@ -240,7 +251,7 @@ def is_good_image(img_url):
     :rtype: bool
     """
 
-    logger.debug('URL is: {}'.format(img_url))
+    logger.debug('Check if URL is good image: {}'.format(img_url))
     return 'gallery' not in img_url and \
            ('.jpg' in img_url[-5:] or '.png' in img_url[-5:]) and \
            check_size(img_url)
@@ -266,7 +277,7 @@ def main():
             img_post = random.choice(sfw_porn_list)
             img_url = fix_imgur(img_post.url)
             if is_good_image(img_url):
-                logger.info('Image is from {}'.format(img_post.url))
+                logger.debug('Image is from: {}'.format(img_post.url))
                 # want to get the subreddit a submission is from
                 break
 
