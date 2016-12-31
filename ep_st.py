@@ -67,7 +67,18 @@ logging.basicConfig(filename='ep_st.log',
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+log_levels = {'debug': logging.DEBUG,
+              'info':logging.INFO,
+              'warn':logging.WARNING,
+              'error':logging.ERROR,
+              'critical':logging.CRITICAL}
+level = config['LOGGING']['level'].lower()
+try:
+    logger.setLevel(log_levels[level])
+except KeyError:
+    logger.setLevel(logging.INFO)
+    logger.error('Invalid logging level, log level set to INFO')
+    logger.info("Valid values are 'debug', 'info', 'warn', 'error', or 'critical'")
 
 logger.debug("Logging configuration complete")
 
@@ -87,7 +98,7 @@ def get_posts(sub):
     s = r.get_subreddit(sub)
     while True:  # Repeat until we don't get an error
         try:
-            p = s.get_top_from_month(limit=num_posts / 5)
+            p = s.get_top_from_month(limit=num_posts)
             break  # Exits the while loop once content is retrieved successfully
 
         # Had trouble with TypeError raised when connection is buffering too long
@@ -107,7 +118,7 @@ def get_new_list(l):
     :rtype: list
     """
 
-    logger.info('Getting new lists of posts')
+    logger.info('Getting new list of posts')
     start_time = time.time()
 
     p = Pool(processes=len(l))
@@ -241,30 +252,25 @@ check_size = create_check_size(min_height, min_width, logic)
 def main():
     logger.info('Script Start')
 
-    used = []
-    start_time = 0  # time.time()
-
-    # sfw_porn_list, shower_thought_list = get_new_list([image_subs, text_subs])
+    start_time = 0
 
     while True:  # Repeat forever.  Break with CTRL-C (on most systems)
         if time.time() - start_time > list_refresh_rate:
             sfw_porn_list = get_new_list(image_subs)
             shower_thought_list = get_new_list(text_subs)
             start_time = time.time()
-            used = []
-            length = min(len(sfw_porn_list), len(shower_thought_list))
 
         img_url = ''
-        print('Length: {}'.format(length))
         while True:  # Repeat until we get a valid image in the proper size
-            i = random.randint(0, length - 1)
             # TODO: fix_url() rather than just imgur
-            img_url = fix_imgur(sfw_porn_list[i].url)
-            if is_good_image(img_url) and i not in used:
-                used.append(i)
+            img_post = random.choice(sfw_porn_list)
+            img_url = fix_imgur(img_post.url)
+            if is_good_image(img_url):
+                logger.info('Image is from {}'.format(img_post.url))
+                # want to get the subreddit a submission is from
                 break
 
-        witty_text = shower_thought_list[random.randint(0, length - 1)].title
+        witty_text = random.choice(shower_thought_list).title
         # They're supposed to all be in the title
 
         txt_len = len(witty_text)
