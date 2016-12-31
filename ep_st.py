@@ -27,6 +27,7 @@ import logging
 from PIL import Image
 from io import BytesIO
 from imgurpython import ImgurClient
+from multiprocessing import Pool
 
 ################################################################################
 # Config file stuff
@@ -70,45 +71,40 @@ logger.setLevel(logging.INFO)
 
 logger.debug("Logging configuration complete")
 
+
 ################################################################################
 
 
-def get_posts(subs):
-    """Gets the content from requested list of subs (len >= 1)
+def get_posts(sub):
+    """Gets the content from requested subreddit (len >= 1)
     
-    :param list subs: list of subreddits to scrape posts from
-    :return: list of posts in all subreddits in subs
+    :param str sub: subreddit to scrape posts from
+    :return: list of posts in given subs
     :rtype: list
     """
 
-    posts = []
-    div = len(subs)
-    for sub in subs:
-        s = r.get_subreddit(sub)
-        p = []
-        while True:  # Repeat until we don't get an error
-            try:
-                p = s.get_top_from_month(limit=num_posts / div)
-                break  # Exits the while loop once content is retrieved successfully
+    logger.info('Getting posts from sub: {}'.format(sub))
+    s = r.get_subreddit(sub)
+    while True:  # Repeat until we don't get an error
+        try:
+            p = s.get_top_from_month(limit=num_posts / 5)
+            break  # Exits the while loop once content is retrieved successfully
 
-            # Had trouble with TypeError raised when connection is buffering too long
-            # Which one would think is the same as ReadTimeout :/
-            except (TypeError, ReadTimeout) as e:
-                logger.error('{}: {}'.format(type(e).__name__, str(e)))
+        # Had trouble with TypeError raised when connection is buffering too long
+        # Which one would think is the same as ReadTimeout :/
+        except (TypeError, ReadTimeout) as e:
+            logger.error('{}: {}'.format(type(e).__name__, str(e)))
 
-        # Execute this step only once, after content is retrieved       
-        for post in p:
-            posts.append(post)
-
-    return posts
+    return list(p)
 
 
 def get_new_list(l):
-    """Builds a n-dimensional list of posts 
-    based on input list of subs on n length
+    # TODO Refactor docstrings
+    """Builds a list of posts
+    based on input list of subs
     
     :param list l: list of subs to get content from
-    :return: n-dimensional list of Reddit posts
+    :return: list of Reddit posts
     :rtype: list
     """
 
@@ -116,8 +112,17 @@ def get_new_list(l):
     t1 = time.time()
 
     ret = []
-    for i in range(0, len(l)):
-        ret.append(get_posts(l[i]))
+    # for i in range(0, len(l)):
+    #    print(l[i])
+    # ret.append(get_posts(l[i]))
+    p = Pool(processes=len(l))
+    data = p.map(get_posts, l)
+    p.close()
+
+    for lst in data:
+        for item in lst:
+            ret.append(item)
+    print(ret)
 
     t2 = time.time()
     logger.info('Done in {0:.2f} seconds'.format(t2 - t1))
@@ -138,8 +143,8 @@ def get_album_image(url):
     return random.choice(images).link
 
 
-'''def get_gallery_image(url):
-    """Given an imgur gallery URL, returns a valid direct
+# def get_gallery_image(url):
+    ''' """Given an imgur gallery URL, returns a valid direct
             Imgur URL to a random image in the gallery
 
         :param str url: the url of the gallery
@@ -243,14 +248,14 @@ def main():
     logger.info('Script Start')
 
     used = []
-    start_time = time.time()
+    start_time = 0  # time.time()
 
-    sfw_porn_list, shower_thought_list = get_new_list([image_subs, text_subs])
+    # sfw_porn_list, shower_thought_list = get_new_list([image_subs, text_subs])
 
     while True:  # Repeat forever.  Break with CTRL-C (on most systems)
         if time.time() - start_time > list_refresh_rate:
-            sfw_porn_list, shower_thought_list = get_new_list([image_subs, text_subs])
-            #                       Darn, line longer than it should be :(   80^
+            sfw_porn_list = get_new_list(image_subs)
+            shower_thought_list = get_new_list(text_subs)
             start_time = time.time()
             used = []
 
