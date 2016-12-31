@@ -99,7 +99,6 @@ def get_posts(sub):
 
 
 def get_new_list(l):
-    # TODO Refactor docstrings
     """Builds a list of posts
     based on input list of subs
     
@@ -109,23 +108,18 @@ def get_new_list(l):
     """
 
     logger.info('Getting new lists of posts')
-    t1 = time.time()
+    start_time = time.time()
 
-    ret = []
-    # for i in range(0, len(l)):
-    #    print(l[i])
-    # ret.append(get_posts(l[i]))
     p = Pool(processes=len(l))
     data = p.map(get_posts, l)
     p.close()
 
-    for lst in data:
-        for item in lst:
-            ret.append(item)
-    print(ret)
+    # p.map returns 2D list, return for this function needs to be 1D
+    #     the code below flattens it.
+    ret = [item for sublist in data for item in sublist]
 
-    t2 = time.time()
-    logger.info('Done in {0:.2f} seconds'.format(t2 - t1))
+    end_time = time.time()
+    logger.info('Done in {0:.2f} seconds'.format(end_time - start_time))
     return ret
 
 
@@ -258,10 +252,10 @@ def main():
             shower_thought_list = get_new_list(text_subs)
             start_time = time.time()
             used = []
+            length = min(len(sfw_porn_list), len(shower_thought_list))
 
-        length = min(len(sfw_porn_list), len(shower_thought_list))
         img_url = ''
-
+        print('Length: {}'.format(length))
         while True:  # Repeat until we get a valid image in the proper size
             i = random.randint(0, length - 1)
             # TODO: fix_url() rather than just imgur
@@ -273,10 +267,10 @@ def main():
         witty_text = shower_thought_list[random.randint(0, length - 1)].title
         # They're supposed to all be in the title
 
-        length = len(witty_text)
+        txt_len = len(witty_text)
 
-        if length > 146:
-            middle = int(length / 2)
+        if txt_len > 146:
+            middle = int(txt_len / 2)
             split = witty_text[:middle].rfind(' ')
             witty_text = witty_text[:split] + '<br>' + witty_text[split:]
 
