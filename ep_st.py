@@ -66,13 +66,13 @@ log_path = os.path.expanduser(config['FILEPATHS']['log'])
 # print(log_path)
 
 # Frequency to refresh lists of posts.
-list_refresh_rate = config['REFRESH'].getint('refreshrate', fallback=4) * 60 * 60
+list_refresh_rate = config['REFRESH'].getint('refreshrate', fallback=4) * 3600
 
 image_subs = config['SUBREDDITS']['imagesubs'].split(', ')
 text_subs = config['SUBREDDITS']['textsubs'].split(', ')
 
 # logging config
-logging.basicConfig(filename=os.path.join(log_path,'ep_st.log'),
+logging.basicConfig(filename=os.path.join(log_path, 'ep_st.log'),
                     format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -90,7 +90,7 @@ try:
 except KeyError:
     logger.setLevel(logging.INFO)
     logger.error('Invalid logging level, log level set to INFO')
-    logger.info("Valid values are 'debug', 'info', 'warn', 'error', or 'critical'")
+    logger.info("Valid values: 'debug', 'info', 'warn', 'error', or 'critical'")
 
 logger.debug("Logging configuration complete")
 ################################################################################
@@ -111,8 +111,8 @@ def get_posts(sub):
             p = s.get_top_from_month(limit=num_posts)
             break  # Exits the while loop once content is retrieved successfully
 
-        # Had trouble with TypeError raised when connection is buffering too long
-        # Which one would think is the same as ReadTimeout :/
+        # Had trouble with TypeError raised when connection is buffering too
+        #  long, which one would think is the same as ReadTimeout :/
         except (TypeError, ReadTimeout) as e:
             logger.error('{}: {}'.format(type(e).__name__, str(e)))
 
@@ -189,7 +189,7 @@ def fix_imgur(img_url):
         return get_album_image(img_url)
     # elif 'imgur.com/gallery/' in url:
     #    return get_gallery_image(url)'''
-    elif 'imgur' in img_url and not 'i.i' in img_url and not 'iob.i' in img_url:
+    elif 'imgur' in img_url and 'i.i' not in img_url and 'iob.i' not in img_url:
         if 'https' in img_url:
             img_url = img_url[0:8] + 'i.' + img_url[8:] + '.png'
         else:
@@ -197,15 +197,15 @@ def fix_imgur(img_url):
     return img_url
 
 
-def create_check_size(min_width, min_height, logic='and'):
+def create_check_size(min_w, min_h, logic_='and'):
     """Create a function to check the minimum size of images.
 
     Acceptable values for ``logic`` are 'and' or 'or'. All other values
     are silently ignored. The default is 'and'.
 
-    :param str logic: whether one or both minimums must be met
-    :param int min_width: minimum width in pixels
-    :param min_height: minimum height in pixels
+    :param str logic_: whether one ('or') or both ('and') minimums must be met
+    :param int min_w: minimum width in pixels
+    :param int min_h: minimum height in pixels
     :return: function that accepts a URL and returns False if the image does 
              not meet requirements.
     :rtype: function
@@ -213,7 +213,7 @@ def create_check_size(min_width, min_height, logic='and'):
 
     # Get the right logic function. We'll use it later.
     op = operator.__and__
-    if logic == 'or':
+    if logic_ == 'or':
         op = operator.__or__
 
     # Define our custom checksize function.
@@ -236,7 +236,7 @@ def create_check_size(min_width, min_height, logic='and'):
         # Here's where we use the right logic.
         w, h = img.size
         logger.debug('Image size is {}x{}'.format(w, h))
-        return op(w >= min_width, h >= min_height)
+        return op(w >= min_w, h >= min_h)
 
     # Return the custom function to the caller.
     return check_size_inner
@@ -271,13 +271,14 @@ def main():
             shower_thought_list = get_new_list(text_subs)
             start_time = time.time()
 
-        img_url = ''
+        # img_url = ''
         while True:  # Repeat until we get a valid image in the proper size
             # TODO: fix_url() rather than just imgur
             img_post = random.choice(sfw_porn_list)
             img_url = fix_imgur(img_post.url)
             if is_good_image(img_url):
                 logger.debug('Image is from: {}'.format(img_post.url))
+                # download_image(img_url)
                 # want to get the subreddit a submission is from
                 break
 
