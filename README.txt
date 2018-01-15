@@ -1,5 +1,11 @@
 # earthporn_showerthoughts
 
+Clone this project
+inside the project folder, from the terminal: 
+- 'python3 -m venv venv'
+- 'source venv/bin/activate'
+- 'pip install -r requirements.txt'
+
 Change the file paths in 'ep_st.config' for:
   template: where you have stored the template (should be the same folder)
   display:  where you want the output file (ep_st.html)
