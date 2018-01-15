@@ -44,9 +44,9 @@ config.read('ep_st.config')
 r = praw.Reddit(config['DEFAULT']['appname'])
 
 # imgur API
-imgur_id = config['IMGUR'].get('id')
-imgur_secret = config['IMGUR'].get('secret')
-imgur_client = ImgurClient(imgur_id, imgur_secret)
+#imgur_id = config['IMGUR'].get('id')
+#imgur_secret = config['IMGUR'].get('secret')
+#imgur_client = ImgurClient(imgur_id, imgur_secret)
 
 # Number of posts to get
 num_posts = config['SUBREDDITS'].getint('numberposts', fallback=1000)
@@ -144,7 +144,7 @@ def get_new_list(l):
     return ret
 
 
-def get_album_image(url):
+'''def get_album_image(url):
     """Given an imgur album URL, returns a valid direct
             Imgur URL to a random image in the album
 
@@ -155,11 +155,11 @@ def get_album_image(url):
     logger.info('Expanding imgur album.  URL: {}'.format(url))
     album_id = url.split('/')[-1]
     images = imgur_client.get_album_images(album_id=album_id)
-    return random.choice(images).link
+    return random.choice(images).link'''
 
 
-# def get_gallery_image(url):
-    ''' """Given an imgur gallery URL, returns a valid direct
+'''def get_gallery_image(url):
+     """Given an imgur gallery URL, returns a valid direct
             Imgur URL to a random image in the gallery
 
         :param str url: the url of the gallery
@@ -186,7 +186,8 @@ def fix_imgur(img_url):
         img_url = img_url.split('?')[0]
 
     if 'imgur.com/a/' in img_url:
-        return get_album_image(img_url)
+        pass
+        # return get_album_image(img_url)
     # elif 'imgur.com/gallery/' in url:
     #    return get_gallery_image(url)'''
     elif 'imgur' in img_url and 'i.i' not in img_url and 'iob.i' not in img_url:
