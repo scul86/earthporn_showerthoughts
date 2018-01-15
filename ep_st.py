@@ -189,7 +189,7 @@ def fix_imgur(img_url):
         pass
         # return get_album_image(img_url)
     # elif 'imgur.com/gallery/' in url:
-    #    return get_gallery_image(url)'''
+    #    return get_gallery_image(url)
     elif 'imgur' in img_url and 'i.i' not in img_url and 'iob.i' not in img_url:
         if 'https' in img_url:
             img_url = img_url[0:8] + 'i.' + img_url[8:] + '.png'
