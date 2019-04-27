@@ -1,3 +1,6 @@
+## Outdated, use this version on GitLab
+https://gitlab.com/scul/earthporn_showerthoughts
+
 # Earthporn Showerthoughts
 
 Setup in terminal:
